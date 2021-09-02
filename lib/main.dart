@@ -20,9 +20,10 @@ class SauronApp extends StatelessWidget {
       ),
       routes: {
         "/home": (_) => new HomeScreen(),
+        "/startup": (_) => new StartupScreen(),
         "/login": (_) => new LoginScreen(),
       },
-      home: HomeScreen(),
+      home: LoginScreen(),
     );
   }
 }

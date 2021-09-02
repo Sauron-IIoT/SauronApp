@@ -63,7 +63,9 @@ class _LoginScreenState extends State<LoginScreen> {
       width: double.infinity,
       height: 45,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushReplacementNamed(context, "/startup");
+        },
         style: ButtonStyle(
           elevation: MaterialStateProperty.all(5),
           backgroundColor: MaterialStateProperty.all(Colors.white),
