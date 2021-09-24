@@ -40,7 +40,7 @@ class _BottomMenuState extends State<BottomMenu> {
                     Opacity(
                       opacity: percentage == 1 ? 1 : 0,
                       child: ListView.builder(
-                        padding: EdgeInsets.only(right: 32, top: 128),
+                        padding: EdgeInsets.only(right: 32, top: 128, bottom: 30),
                         controller: scrollController,
                         itemCount: events.length,
                         itemBuilder: (context, index) {
@@ -105,52 +105,54 @@ class IncidentItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(0, 10, 18, 0),
+      padding: EdgeInsets.fromLTRB(5, 10, 10, 0),
       child: Transform.scale(
         alignment: Alignment.topLeft,
         scale: 1 / 3 + 2 / 3 * percentageCompleted,
-        child: SizedBox(
-          height: 110,
-          child: Row(
-            children: <Widget>[
-              ClipRRect(
-                borderRadius: BorderRadius.horizontal(
-                  left: Radius.circular(16),
-                  right: Radius.circular(16 * (1 - percentageCompleted)),
-                ),
-                child: Image.asset(
-                  'assets/images/${event.assetName}',
-                  width: 120,
-                  height: 120,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              SizedBox(width: 5,),
-              Expanded(
-                child: Opacity(
-                  opacity: max(0, percentageCompleted * 2 - 1),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.all(Radius.circular(16)),
-                      gradient: LinearGradient(
-                        colors: [
-                          Color.fromRGBO(255, 255, 255, 0),
-                          Color.fromRGBO(255, 255, 255, 0.3),
-                          Color.fromRGBO(255, 255, 255, 0.5),
-                          Color.fromRGBO(255, 255, 255, 0.7),
-                        ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        stops: [0.1, 0.4, 0.7, 1] 
-                      ),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    child: _buildContent(),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Color.fromRGBO(255, 255, 255, max(0, percentageCompleted * 2 - 1))
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(18))
+          ),
+          child: SizedBox(
+            height: 110,
+            child: Row(
+              children: <Widget>[
+                SizedBox(width: 15),
+                ClipRRect(
+                  borderRadius: BorderRadius.horizontal(
+                    left: Radius.circular(16),
+                    right: Radius.circular(16 * (1 - percentageCompleted)),
+                  ),
+                  child: Image.asset(
+                    'assets/images/${event.assetName}',
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
                   ),
                 ),
-              )
-            ],
+                SizedBox(width: 15),
+                Expanded(
+                  child: Opacity(
+                    opacity: max(0, percentageCompleted * 2 - 1),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.horizontal(right: Radius.circular(16)),
+                        color: Colors.white,
+                      ),
+                      padding: EdgeInsets.only(
+                        top: 8, 
+                        left: 18,
+                        bottom: 8
+                      ),
+                      child: _buildContent(),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -208,10 +210,10 @@ final List<Incident> events = [
   Incident('warning.png', 'Peça furtada', '4.20-30'),
   Incident('warning.png', 'Peça furtada', '4.20-30'),
   Incident('warning.png', 'Peça incorreta', '4.28-31'),
-  // Incident('warning.png', 'Peça furtada', '4.20-30'),
-  // Incident('warning.png', 'Peça furtada', '4.20-30'),
-  // Incident('warning.png', 'Peça incorreta', '4.28-31'),
-  // Incident('warning.png', 'Peça furtada', '4.20-30'),
+  Incident('warning.png', 'Peça furtada', '4.20-30'),
+  Incident('warning.png', 'Peça furtada', '4.20-30'),
+  Incident('warning.png', 'Peça incorreta', '4.28-31'),
+  Incident('warning.png', 'Peça furtada', '4.20-30'),
 ];
 
 class Incident {
@@ -259,12 +261,12 @@ class MenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      right: 12,
-      bottom: 24,
+      right: 10,
+      bottom: 15,
       child: Icon(
         Icons.arrow_upward,
         color: Colors.white,
-        size: 28,
+        size: 25,
       ),
     );
   }
