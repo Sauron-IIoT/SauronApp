@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "472852674949",
+    "project_id": "sauron-iiot-app",
+    "storage_bucket": "sauron-iiot-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472852674949:android:0be4834102c01d9dc82cec",
+        "android_client_info": {
+          "package_name": "com.sauron.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "472852674949-mgg1sn8dudqfpolut0osf0k84vns88l0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqxj9jFENkaDSPuyLLsPrEhXbTv6vfxKs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "472852674949-mgg1sn8dudqfpolut0osf0k84vns88l0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

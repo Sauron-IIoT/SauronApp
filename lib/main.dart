@@ -3,8 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sauron/screens/home/home.dart';
 import 'package:sauron/screens/startup/startup.dart';
 import 'package:sauron/screens/login/login.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(SauronApp());
 }
 
