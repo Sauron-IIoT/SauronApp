@@ -6,7 +6,7 @@ import 'package:sauron/components/background/home.dart';
 import 'package:sauron/components/bottom_menu/bottom_menu.dart';
 import 'package:sauron/components/tab.dart';
 import 'package:sauron/models/bezier_line.dart';
-import 'package:sauron/models/event.dart';
+import 'package:sauron/models/incident.dart';
 import 'package:sauron/screens/home/args.dart';
 import 'package:sauron/services/incident.dart';
 import "package:collection/collection.dart";
@@ -215,7 +215,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<DataPoint<DateTime>>> getChartData(accountId, type) async {
-     await IncidentService.getIncidents(accountId, type: type), (item) => item.);
+     await IncidentService.getIncidentsByDate(accountId, type: type);
 
 
     return List<DataPoint<DateTime>>.from(
