@@ -1,2 +1,3 @@
-# sauron-mobile-app
-Sauron project mobile application
+# Sauron - Mobile Flutter App
+
+Flutter app for Android & iOS
