@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'package:intl/intl.dart';
+import 'package:sauron/models/bezier_line.dart';
 import 'package:sauron/models/incident.dart';
 import 'package:http/http.dart' as http;
 import "package:collection/collection.dart";
@@ -12,8 +13,8 @@ final Map<String, String> headers = {
 };
 
 class IncidentService {
-  static Future<List<Incident>> getIncidentsByDate(accountId,
-      {since, IncidentType? type}) async {
+  static List<PointData> getIncidentsByDate(accountId,
+      {since, IncidentType? type}) {
     String params = "";
     if (since != null) {
       params += DateTime.now().toString() + "&";
@@ -25,62 +26,118 @@ class IncidentService {
     // http.Response response =
     //     await http.get("${endpoint + since}", headers: headers);
 
-    // return parse(response);
+    // return parseIncident(response);
 
-    await Future.delayed(Duration(seconds: 3));
     if (type == IncidentType.missing_part) {
-      return [
-        Incident(
-            type: IncidentType.missing_part, timestamp: DateTime(2019, 01, 22)),
-        Incident(
-            type: IncidentType.missing_part, timestamp: DateTime(2019, 01, 22)),
-        Incident(
-            type: IncidentType.missing_part, timestamp: DateTime(2019, 01, 24)),
-        Incident(
-            type: IncidentType.missing_part, timestamp: DateTime(2019, 01, 24)),
-        Incident(
-            type: IncidentType.missing_part, timestamp: DateTime(2019, 01, 24)),
-        Incident(
-            type: IncidentType.missing_part, timestamp: DateTime(2019, 01, 24)),
-        Incident(
-            type: IncidentType.missing_part, timestamp: DateTime(2019, 01, 27)),
-        Incident(
-            type: IncidentType.missing_part, timestamp: DateTime(2019, 01, 27)),
-      ];
+      return toPointDataList(json.encode([
+        {
+          "type": "missing_part",
+          "captured_at": "2019-01-22T22:39:35.524355+00:00",
+        },
+        {
+          "type": "missing_part",
+          "captured_at": "2019-01-22T22:39:35.524355+00:00",
+        },
+        {
+          "type": "missing_part",
+          "captured_at": "2019-01-23T22:39:35.524355+00:00",
+        },
+        {
+          "type": "missing_part",
+          "captured_at": "2019-01-23T22:39:35.524355+00:00",
+        },
+        {
+          "type": "missing_part",
+          "captured_at": "2019-01-24T22:39:35.524355+00:00",
+        },
+        {
+          "type": "missing_part",
+          "captured_at": "2019-01-24T22:39:35.524355+00:00",
+        },
+        {
+          "type": "missing_part",
+          "captured_at": "2019-01-24T22:39:35.524355+00:00",
+        },
+        {
+          "type": "missing_part",
+          "captured_at": "2019-01-24T22:39:35.524355+00:00",
+        },
+      ]));
     } else {
-      return [
-        Incident(
-            type: IncidentType.anomaly, timestamp: DateTime(2019, 01, 22)),
-        Incident(
-            type: IncidentType.anomaly, timestamp: DateTime(2019, 01, 22)),
-        Incident(
-            type: IncidentType.anomaly, timestamp: DateTime(2019, 01, 22)),
-        Incident(
-            type: IncidentType.anomaly, timestamp: DateTime(2019, 01, 22)),
-        Incident(
-            type: IncidentType.anomaly, timestamp: DateTime(2019, 01, 26)),
-        Incident(
-            type: IncidentType.anomaly, timestamp: DateTime(2019, 01, 26)),
-        Incident(
-            type: IncidentType.anomaly, timestamp: DateTime(2019, 01, 26)),
-        Incident(
-            type: IncidentType.anomaly, timestamp: DateTime(2019, 01, 26)),
-      ];
+      return toPointDataList(json.encode([
+        {
+          "type": "anomaly",
+          "captured_at": "2019-01-22T22:39:35.524355+00:00",
+        },
+        {
+          "type": "anomaly",
+          "captured_at": "2019-02-23T22:39:35.524355+00:00",
+        },
+        {
+          "type": "anomaly",
+          "captured_at": "2019-02-23T22:39:35.524355+00:00",
+        },
+        {
+          "type": "anomaly",
+          "captured_at": "2019-02-23T22:39:35.524355+00:00",
+        },
+        {
+          "type": "anomaly",
+          "captured_at": "2019-02-23T22:39:35.524355+00:00",
+        },
+        {
+          "type": "anomaly",
+          "captured_at": "2019-05-24T22:39:35.524355+00:00",
+        },
+        {
+          "type": "anomaly",
+          "captured_at": "2019-05-24T22:39:35.524355+00:00",
+        },
+        {
+          "type": "anomaly",
+          "captured_at": "2019-05-24T22:39:35.524355+00:00",
+        },
+      ]));
     }
   }
 
   static List<Incident> parse(http.Response raw) {
     return List<Incident>.from(
-        json.decode(raw.body).map((item) => parseResponseItem(item)));
+        json.decode(raw.body).map((item) => parseIncident(item)));
   }
 
-  // static List<Incident> parseSummary(http.Response raw) {
-  //   return List<Incident>.from(
-  //       groupBy(json.decode(raw.body)).map((item) => parseResponseItem(item)));
-  // }
+  static List<PointData> toPointDataList(raw) {
+    Map<String, int> dateToCount = new Map<String, int>();
+    List<PointData> pointDataList = [];
 
-  static Incident parseResponseItem(item) {
+    for (var item in json.decode(raw)) {
+      String referenceDate =
+          DateFormat('yyyy-MM-dd').format(DateTime.parse(item["captured_at"]));
+
+      if (dateToCount.containsKey(referenceDate)) {
+        dateToCount[referenceDate] = (dateToCount[referenceDate])!+ 1;
+      } else {
+        dateToCount[referenceDate] = 1;
+      }
+    }
+
+    dateToCount.forEach((key, value) {
+      pointDataList.add(parsePointData(key, value));
+    });
+
+    return pointDataList;
+  }
+
+  static Incident toIncidentList(raw) {
+    return json.decode(raw).map((inc) => Incident(type: inc["type"], timestamp: inc["captured_at"]));
+  }
+
+  static Incident parseIncident(item) {
     return Incident(type: item["type"], timestamp: item["captured_at"]);
+  }
+
+  static PointData parsePointData(date, rowCount) {
+    return PointData(DateTime.parse(date), double.parse(rowCount.toString()));
   }
 }
 

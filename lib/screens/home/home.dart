@@ -22,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   PageController? _pageController;
   int _selectedPage = 0;
+  HomeArguments? args;
 
   void _changeChart(int nextPage) {
     setState(() {
@@ -36,6 +37,17 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     _pageController = PageController();
     super.initState();
+    getChartData(args?.account_id, IncidentType.missing_part).then((data) {
+      setState(() {
+        widget.missing.addAll(data);
+      });
+    });
+
+    getChartData(args?.account_id, IncidentType.anomaly).then((data) {
+      setState(() {
+        widget.anomaly.addAll(data);
+      });
+    });
   }
 
   @override
@@ -46,19 +58,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as HomeArguments;
-
-    getChartData(args.account_id, IncidentType.missing_part).then((data) {
-      setState(() {
-        widget.missing.addAll(data);
-      });
-    });
-
-    getChartData(args.account_id, IncidentType.anomaly).then((data) {
-      setState(() {
-        widget.anomaly.addAll(data);
-      });
-    });
+    args = ModalRoute.of(context)!.settings.arguments as HomeArguments;
 
     return Material(
       type: MaterialType.transparency,
@@ -79,7 +79,7 @@ class HomeScreenState extends State<HomeScreen> {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 0),
                     child: Text(
-                      'Olá, ${args.display_name}',
+                      'Olá, ${args?.display_name}',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -215,12 +215,13 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<DataPoint<DateTime>>> getChartData(accountId, type) async {
-     await IncidentService.getIncidentsByDate(accountId, type: type);
+    List<DataPoint<DateTime>> dataPoints = [];
 
+    IncidentService.getIncidentsByDate(accountId,
+            type: type, since: DateTime.now())
+        .forEach((incident) => dataPoints.add(
+            DataPoint<DateTime>(xAxis: incident.date, value: incident.value)));
 
-    return List<DataPoint<DateTime>>.from(
-        (await IncidentService.getIncidentsByDate(accountId, type: type, since:  DateTime.now())).map(
-            (incident) => DataPoint<DateTime>(xAxis: ))
-    );
+    return dataPoints;
   }
 }
