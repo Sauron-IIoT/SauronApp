@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bezier_chart/bezier_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,14 +8,22 @@ import 'package:sauron/components/background/home.dart';
 import 'package:sauron/components/bottom_menu/bottom_menu.dart';
 import 'package:sauron/components/tab.dart';
 import 'package:sauron/models/bezier_line.dart';
-import 'package:sauron/models/incident.dart';
+import 'package:sauron/models/classification.dart';
 import 'package:sauron/screens/home/args.dart';
-import 'package:sauron/services/incident.dart';
+import 'package:sauron/services/helix.dart';
 import "package:collection/collection.dart";
 
 class HomeScreen extends StatefulWidget {
-  final List<DataPoint<DateTime>> missing = [];
-  final List<DataPoint<DateTime>> anomaly = [];
+  // So far is not dynamic, but we are already fetching records dynamically
+  final List<DataPoint<DateTime>> engine = [
+    new DataPoint(xAxis: DateTime.now(), value: 0)
+  ];
+  final List<DataPoint<DateTime>> esp32 = [
+    new DataPoint(xAxis: DateTime.now(), value: 0)
+  ];
+  final List<DataPoint<DateTime>> anomaly = [
+    new DataPoint(xAxis: DateTime.now(), value: 0)
+  ];
 
   @override
   State<StatefulWidget> createState() => HomeScreenState();
@@ -37,16 +47,20 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     _pageController = PageController();
     super.initState();
-    getChartData(args?.account_id, IncidentType.missing_part).then((data) {
-      setState(() {
-        widget.missing.addAll(data);
-      });
-    });
+    getChartData(args?.account_id, ClassificationType.knownPart).then((data) {
+      if (data.isNotEmpty) {
+        setState(() {
+          if (data.containsKey('esp32'))
+            widget.esp32.addAll(data['esp32'] as List<DataPoint<DateTime>>);
+          if (data.containsKey('motor'))
+            widget.engine.addAll(data['motor'] as List<DataPoint<DateTime>>);
+          if (data.containsKey('esp32'))
+            widget.anomaly.addAll(
+                data['prediction_failure'] as List<DataPoint<DateTime>>);
 
-    getChartData(args?.account_id, IncidentType.anomaly).then((data) {
-      setState(() {
-        widget.anomaly.addAll(data);
-      });
+          print(widget.esp32);
+        });
+      }
     });
   }
 
@@ -106,7 +120,7 @@ class HomeScreenState extends State<HomeScreen> {
                           },
                         ),
                         ChartTab(
-                          text: 'Capturas',
+                          text: 'Peças',
                           pageNumber: 1,
                           selectedPage: _selectedPage,
                           onTap: () {
@@ -143,25 +157,25 @@ class HomeScreenState extends State<HomeScreen> {
 
   Container _buildDailyChart(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
+      height: MediaQuery.of(context).size.height,
       width: double.infinity,
       child: BezierChart(
-        fromDate: DateTime(2019, 01, 22),
-        bezierChartScale: BezierChartScale.MONTHLY,
-        toDate: DateTime(2019, 10, 22),
+        fromDate: DateTime.now().add(Duration(days: -30)),
+        bezierChartScale: BezierChartScale.WEEKLY,
+        toDate: DateTime.now(),
         series: [
           BezierLine(
               lineColor: Color.fromRGBO(153, 28, 209, 1),
-              label: "Ausencia",
-              data: widget.missing),
-          BezierLine(
-            lineColor: Colors.blue,
-            label: "Peça estranha",
-            data: widget.anomaly,
-          ),
+              label: "Incidentes",
+              onMissingValue: (dateTime) {
+                return 0.0;
+              },
+              data: widget.anomaly),
         ],
         config: BezierChartConfig(
           verticalIndicatorStrokeWidth: 2.0,
+          displayYAxis: true,
+          stepsYAxis: 500,
           verticalIndicatorColor: Colors.black,
           xAxisTextStyle: TextStyle(color: Colors.black, fontSize: 12),
           bubbleIndicatorColor: Colors.white,
@@ -174,54 +188,54 @@ class HomeScreenState extends State<HomeScreen> {
 
   Container _buildMonthyChart(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
-      height: MediaQuery.of(context).size.height * 0.6,
+      height: MediaQuery.of(context).size.height,
       width: double.infinity,
       child: BezierChart(
-        fromDate: DateTime(2019, 01, 22),
-        bezierChartScale: BezierChartScale.MONTHLY,
-        toDate: DateTime(2019, 12, 22),
+        fromDate: DateTime.now().add(Duration(days: -30)),
+        bezierChartScale: BezierChartScale.WEEKLY,
+        toDate: DateTime.now(),
         series: [
           BezierLine(
-            lineColor: Color.fromRGBO(153, 28, 209, 1),
-            label: "Peça 1",
-            data: [
-              DataPoint<DateTime>(value: 10, xAxis: DateTime(2019, 01, 22)),
-              DataPoint<DateTime>(value: 130, xAxis: DateTime(2019, 02, 22)),
-              DataPoint<DateTime>(value: 50, xAxis: DateTime(2019, 03, 22)),
-              DataPoint<DateTime>(value: 150, xAxis: DateTime(2019, 04, 22)),
-              DataPoint<DateTime>(value: 75, xAxis: DateTime(2019, 05, 22)),
-              DataPoint<DateTime>(value: 0, xAxis: DateTime(2019, 06, 22)),
-              DataPoint<DateTime>(value: 5, xAxis: DateTime(2019, 07, 22)),
-              DataPoint<DateTime>(value: 45, xAxis: DateTime(2019, 08, 22)),
-            ],
-          ),
+              lineColor: Color.fromRGBO(153, 28, 209, 1),
+              label: "ESP32",
+              onMissingValue: (dateTime) {
+                return 0.0;
+              },
+              data: widget.esp32),
+          BezierLine(
+              lineColor: Color.fromRGBO(0, 28, 209, 1),
+              label: "Motor",
+              onMissingValue: (dateTime) {
+                return 0.0;
+              },
+              data: widget.engine),
         ],
         config: BezierChartConfig(
           verticalIndicatorStrokeWidth: 2.0,
+          displayYAxis: true,
+          stepsYAxis: 500,
           verticalIndicatorColor: Colors.black,
           xAxisTextStyle: TextStyle(color: Colors.black, fontSize: 12),
-          yAxisTextStyle: TextStyle(
-            color: Colors.black,
-            fontSize: 10,
-          ),
-          showVerticalIndicator: true,
-          displayYAxis: true,
           bubbleIndicatorColor: Colors.white,
+          showDataPoints: true,
           backgroundColor: Color.fromRGBO(153, 28, 209, 0),
         ),
       ),
     );
   }
 
-  Future<List<DataPoint<DateTime>>> getChartData(accountId, type) async {
-    List<DataPoint<DateTime>> dataPoints = [];
+  Future<Map<dynamic, List<DataPoint<DateTime>>>> getChartData(
+      accountId, ClassificationType type) async {
+    Map<dynamic, List<DataPoint<DateTime>>> dataPoints = {};
 
-    IncidentService.getIncidentsByDate(accountId,
-            type: type, since: DateTime.now())
-        .forEach((incident) => dataPoints.add(
-            DataPoint<DateTime>(xAxis: incident.date, value: incident.value)));
-
-    return dataPoints;
+    return HelixService.getCaptures(accountId,
+            type: type, since: DateTime.now().add(Duration(days: -90)))
+        .then((results) {
+      results.forEach((key, list) => dataPoints[key] = list.map((item) =>
+              DataPoint<DateTime>(xAxis: item.date, value: item.value)).toList()
+          as List<DataPoint<DateTime>>);
+      print('DP => ' + dataPoints.toString());
+      return dataPoints;
+    });
   }
 }

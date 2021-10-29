@@ -16,4 +16,6 @@ class PointData {
   double value;
 
   PointData(this.date, this.value);
+
+  String toString() => "data: $date value: $value";
 }
