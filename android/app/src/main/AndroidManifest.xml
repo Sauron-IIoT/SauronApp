@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.sauron">
    <application
-        android:label="sauron"
-        android:icon="@mipmap/ic_launcher">
+        android:label="Sauron"
+        android:icon="@mipmap/sauron_launcher">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
