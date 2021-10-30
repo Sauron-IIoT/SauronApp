@@ -23,11 +23,6 @@ class IncidentService {
       params += type.toString().split(".").last + "&";
     }
 
-    // http.Response response =
-    //     await http.get("${endpoint + since}", headers: headers);
-
-    // return parseIncident(response);
-
     if (type == IncidentType.missing_part) {
       return toPointDataList(json.encode([
         {
