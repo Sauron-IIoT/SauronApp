@@ -234,7 +234,6 @@ class HomeScreenState extends State<HomeScreen> {
       results.forEach((key, list) => dataPoints[key] = list.map((item) =>
               DataPoint<DateTime>(xAxis: item.date, value: item.value)).toList()
           as List<DataPoint<DateTime>>);
-      print('DP => ' + dataPoints.toString());
       return dataPoints;
     });
   }
